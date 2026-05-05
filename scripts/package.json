@@ -2,6 +2,9 @@
   "name": "md-to-doc",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "auth": "node init-auth.mjs"
+  },
   "dependencies": {
     "google-auth-library": "^9.0.0",
     "googleapis": "^144.0.0",

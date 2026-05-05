@@ -6,3 +6,6 @@ scripts/credentials/
 
 # OS files
 .DS_Store
+
+# Other llm tools
+.mcp.json
