@@ -1,0 +1,4 @@
+# Default Google Drive folder for generated docs.
+# Set this to a folder ID (from the Drive URL) so docs don't land in Drive root.
+# Individual templates can override this via their frontmatter folder_id field.
+default_folder_id: ""
