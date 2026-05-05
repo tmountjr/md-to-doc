@@ -59,6 +59,8 @@ If the user provided inline arguments like `/md-to-doc meeting-notes Date=2026-0
 
 Replace all `{Variable Name}` and `{[ Variable Name ]}` occurrences in both the title and body with the collected values. For list variables, replace the entire `{[ ... ]}` token with the comma-separated values as-is.
 
+If a variable's value is empty or not provided, remove the **entire line** containing that variable from the rendered output (not just the placeholder — the full line including any label text). This avoids leaving orphaned labels like "Previous call notes:" with nothing after them.
+
 ### 7. Create the Google Doc
 
 Write the rendered markdown body (without frontmatter) to a temporary file, then run the Node.js script:

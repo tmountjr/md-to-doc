@@ -5,7 +5,7 @@ folder_id: ""
 ## {Date} | {Meeting Title}
 Attendees: {[ Attendee List ]}
 
-{Previous Call Notes}
+Previous call notes: {Previous Call Notes}
 
 Notes:
 * 
