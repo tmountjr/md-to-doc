@@ -9,8 +9,6 @@ allowed-tools:
   - Bash
   - Read
   - Write
-  - mcp__claude_ai_Google_Drive__create_file
-  - mcp__claude_ai_Google_Drive__search_files
 argument-hint: "[template-name] [variable=value ...]"
 ---
 
@@ -20,12 +18,12 @@ You convert markdown templates into formatted Google Docs. The project root is `
 
 ## Workflow
 
-### 1. Ensure the Python virtualenv exists
+### 1. Ensure Node.js dependencies are installed
 
-Check if `<project-root>/scripts/.venv/bin/python` exists. If not, create it:
+Check if `<project-root>/scripts/node_modules` exists. If not, run:
 
 ```bash
-cd <project-root>/scripts && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+cd <project-root>/scripts && npm install
 ```
 
 ### 2. Select a template
@@ -61,40 +59,33 @@ If the user provided inline arguments like `/md-to-doc meeting-notes Date=2026-0
 
 Replace all `{Variable Name}` and `{[ Variable Name ]}` occurrences in both the title and body with the collected values. For list variables, replace the entire `{[ ... ]}` token with the comma-separated values as-is.
 
-### 7. Convert markdown to HTML
+### 7. Create the Google Doc
 
-Write the rendered markdown body (without frontmatter) to a temporary file, then convert:
+Write the rendered markdown body (without frontmatter) to a temporary file, then run the Node.js script:
 
 ```bash
-<project-root>/scripts/.venv/bin/python <project-root>/scripts/md_to_html.py < /tmp/md_to_doc_rendered.md
+node <project-root>/scripts/create-doc.mjs \
+  --title "<rendered title>" \
+  --folder "<folder_id>" \
+  --input /tmp/md_to_doc_rendered.md
 ```
 
-Capture the HTML output.
+The `--folder` argument is optional. Determine the target folder: use `folder_id` from template frontmatter if set and non-empty; otherwise read `default_folder_id` from `<project-root>/config.yaml`. If both are empty, omit the `--folder` argument (doc goes to Drive root).
 
-### 8. Determine target folder
+The script outputs JSON to stdout: `{"id": "...", "url": "https://docs.google.com/document/d/.../edit"}`
 
-Read `<project-root>/config.yaml`. Use the template's `folder_id` if set and non-empty; otherwise use `default_folder_id` from config.yaml. If both are empty, omit the parentId (doc goes to Drive root).
+### 8. Report the result
 
-### 9. Create the Google Doc
+Parse the JSON output and tell the user the document was created. Provide the Google Doc URL.
 
-Call `mcp__claude_ai_Google_Drive__create_file` with:
+## First-run auth
 
-- `title`: the rendered title from frontmatter
-- `textContent`: the HTML output from step 7
-- `contentMimeType`: `"text/html"`
-- `parentId`: the folder ID from step 8 (omit if empty)
+On first use, the script will open a browser for Google OAuth consent. The user must authorize the app. Tokens are saved to `<project-root>/scripts/credentials/token.json` and auto-refresh on subsequent runs.
 
-### 10. Report the result
-
-Tell the user the document was created and provide the Google Doc URL from the response.
-
-## Troubleshooting
-
-If the Google Doc is created as an HTML file rather than a native Google Doc, the `text/html` mime type may not auto-convert. In that case:
-
-1. Try creating with `contentMimeType: "text/html"` and `disableConversionToGoogleType: false` (explicitly)
-2. If that still doesn't work, fall back to plain text: strip HTML tags and use `contentMimeType: "text/plain"`
-3. Report to the user what happened so they can adjust
+If `scripts/credentials/client_secret.json` is missing, tell the user they need to:
+1. Go to Google Cloud Console
+2. Create OAuth2 credentials (Desktop app type)
+3. Download the JSON and save it as `scripts/credentials/client_secret.json`
 
 ## Reference
 

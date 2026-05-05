@@ -1,9 +1,8 @@
-# Python virtualenv
-scripts/.venv/
+# Node.js
+scripts/node_modules/
 
-# Python bytecode
-__pycache__/
-*.pyc
+# OAuth credentials and tokens
+scripts/credentials/
 
 # OS files
 .DS_Store
