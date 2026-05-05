@@ -2,7 +2,7 @@
 scripts/node_modules/
 
 # OAuth credentials and tokens
-scripts/credentials/
+scripts/credentials/*.json
 
 # OS files
 .DS_Store
