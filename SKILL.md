@@ -14,21 +14,21 @@ argument-hint: "[template-name] [variable=value ...]"
 
 # Markdown-to-Google-Doc Skill
 
-You convert markdown templates into formatted Google Docs. The project root is `${CLAUDE_SKILL_DIR}/../../..` (three levels up from this SKILL.md).
+You convert markdown templates into formatted Google Docs. All paths below are relative to `${CLAUDE_SKILL_DIR}`.
 
 ## Workflow
 
 ### 1. Ensure Node.js dependencies are installed
 
-Check if `<project-root>/scripts/node_modules` exists. If not, run:
+Check if `${CLAUDE_SKILL_DIR}/scripts/node_modules` exists. If not, run:
 
 ```bash
-cd <project-root>/scripts && npm install
+cd ${CLAUDE_SKILL_DIR}/scripts && npm install
 ```
 
 ### 2. Select a template
 
-List `.md` files in `<project-root>/templates/`. If the user specified a template name in the arguments (e.g., `/md-to-doc meeting-notes`), match it. If only one template exists, use it. If multiple exist and none was specified, ask the user to choose.
+List `.md` files in `${CLAUDE_SKILL_DIR}/templates/`. If the user specified a template name in the arguments (e.g., `/md-to-doc meeting-notes`), match it. If only one template exists, use it. If multiple exist and none was specified, ask the user to choose.
 
 ### 3. Parse the template
 
@@ -66,13 +66,13 @@ If a variable's value is empty or not provided, remove the **entire line** conta
 Write the rendered markdown body (without frontmatter) to a temporary file, then run the Node.js script:
 
 ```bash
-node <project-root>/scripts/create-doc.mjs \
+node ${CLAUDE_SKILL_DIR}/scripts/create-doc.mjs \
   --title "<rendered title>" \
   --folder "<folder_id>" \
   --input /tmp/md_to_doc_rendered.md
 ```
 
-The `--folder` argument is optional. Determine the target folder: use `folder_id` from template frontmatter if set and non-empty; otherwise read `default_folder_id` from `<project-root>/config.yaml`. If both are empty, omit the `--folder` argument (doc goes to Drive root).
+The `--folder` argument is optional. Determine the target folder: use `folder_id` from template frontmatter if set and non-empty; otherwise read `default_folder_id` from `${CLAUDE_SKILL_DIR}/config.yaml`. If both are empty, omit the `--folder` argument (doc goes to Drive root).
 
 The script outputs JSON to stdout: `{"id": "...", "url": "https://docs.google.com/document/d/.../edit"}`
 
@@ -82,13 +82,13 @@ Parse the JSON output and tell the user the document was created. Provide the Go
 
 ## First-run auth
 
-On first use, the script will open a browser for Google OAuth consent. The user must authorize the app. Tokens are saved to `<project-root>/scripts/credentials/token.json` and auto-refresh on subsequent runs.
+On first use, the script will open a browser for Google OAuth consent. The user must authorize the app. Tokens are saved to `${CLAUDE_SKILL_DIR}/scripts/credentials/token.json` and auto-refresh on subsequent runs.
 
 If `scripts/credentials/client_secret.json` is missing, tell the user they need to:
 1. Go to Google Cloud Console
 2. Create OAuth2 credentials (Desktop app type)
-3. Download the JSON and save it as `scripts/credentials/client_secret.json`
+3. Download the JSON and save it as `${CLAUDE_SKILL_DIR}/scripts/credentials/client_secret.json`
 
 ## Reference
 
-For template authoring syntax, see `<project-root>/references/template-syntax.md`.
+For template authoring syntax, see `${CLAUDE_SKILL_DIR}/references/template-syntax.md`.
