@@ -1,14 +1,38 @@
 import { OAuth2Client } from 'google-auth-library';
 import { createServer } from 'node:http';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, accessSync, constants, mkdirSync, copyFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { tmpdir, homedir } from 'node:os';
 import open from 'open';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CREDENTIALS_DIR = join(__dirname, 'credentials');
 const CLIENT_SECRET_PATH = join(CREDENTIALS_DIR, 'client_secret.json');
-const TOKEN_PATH = join(CREDENTIALS_DIR, 'token.json');
+const BUILTIN_TOKEN_PATH = join(CREDENTIALS_DIR, 'token.json');
+
+// Resolve a writable token path. If the built-in credentials dir is writable,
+// use it directly. Otherwise, mirror to a writable fallback directory so that
+// token refreshes don't crash on read-only skill mounts.
+function resolveTokenPath() {
+  try {
+    accessSync(CREDENTIALS_DIR, constants.W_OK);
+    return BUILTIN_TOKEN_PATH;
+  } catch {
+    // Credentials dir is read-only — use a writable fallback.
+    const fallbackDir = join(homedir() || tmpdir(), '.md-to-doc', 'credentials');
+    mkdirSync(fallbackDir, { recursive: true });
+    const fallbackToken = join(fallbackDir, 'token.json');
+
+    // Seed the fallback from the built-in token if we haven't already.
+    if (!existsSync(fallbackToken) && existsSync(BUILTIN_TOKEN_PATH)) {
+      copyFileSync(BUILTIN_TOKEN_PATH, fallbackToken);
+    }
+    return fallbackToken;
+  }
+}
+
+const TOKEN_PATH = resolveTokenPath();
 
 const SCOPES = [
   'https://www.googleapis.com/auth/documents',
