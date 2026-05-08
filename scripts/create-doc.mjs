@@ -7,7 +7,7 @@ import { parse } from './parser.mjs';
 import { toRequests } from './converter.mjs';
 
 function parseArgs(argv) {
-  const args = { title: 'Untitled', folder: '', input: '' };
+  const args = { title: 'Untitled', folder: '', input: '', shareDomain: '', shareRole: '' };
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--title' && argv[i + 1]) {
       args.title = argv[++i];
@@ -15,6 +15,10 @@ function parseArgs(argv) {
       args.folder = argv[++i];
     } else if (argv[i] === '--input' && argv[i + 1]) {
       args.input = argv[++i];
+    } else if (argv[i] === '--share-domain' && argv[i + 1]) {
+      args.shareDomain = argv[++i];
+    } else if (argv[i] === '--share-role' && argv[i + 1]) {
+      args.shareRole = argv[++i];
     }
   }
   return args;
@@ -73,6 +77,20 @@ async function main() {
     await docs.documents.batchUpdate({
       documentId: docId,
       requestBody: { requests: allRequests },
+    });
+  }
+
+  // Apply org-wide sharing if configured
+  if (args.shareDomain) {
+    const roleMap = { commenter: 'commenter', reader: 'reader', writer: 'writer' };
+    const role = roleMap[args.shareRole] || 'commenter';
+    await drive.permissions.create({
+      fileId: docId,
+      requestBody: {
+        type: 'domain',
+        domain: args.shareDomain,
+        role,
+      },
     });
   }
 

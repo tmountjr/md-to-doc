@@ -69,10 +69,14 @@ Write the rendered markdown body (without frontmatter) to a temporary file, then
 node ${CLAUDE_SKILL_DIR}/scripts/create-doc.mjs \
   --title "<rendered title>" \
   --folder "<folder_id>" \
+  --share-domain "<domain>" \
+  --share-role "<role>" \
   --input /tmp/md_to_doc_rendered.md
 ```
 
 The `--folder` argument is optional. Determine the target folder: use `folder_id` from template frontmatter if set and non-empty; otherwise read `default_folder_id` from `${CLAUDE_SKILL_DIR}/config.yaml`. If both are empty, omit the `--folder` argument (doc goes to Drive root).
+
+The `--share-domain` and `--share-role` arguments are optional. Read `share_domain` and `share_role` from `${CLAUDE_SKILL_DIR}/config.yaml`. If `share_domain` is set and non-empty, pass both flags. If empty, omit both (doc stays private to the creator). Valid roles: `commenter`, `reader`, `writer`.
 
 The script outputs JSON to stdout: `{"id": "...", "url": "https://docs.google.com/document/d/.../edit"}`
 

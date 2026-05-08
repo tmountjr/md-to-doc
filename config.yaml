@@ -2,3 +2,10 @@
 # Set this to a folder ID (from the Drive URL) so docs don't land in Drive root.
 # Individual templates can override this via their frontmatter folder_id field.
 default_folder_id: ""
+
+# Org-wide sharing for newly created docs.
+# Set share_domain to your Google Workspace domain to auto-share.
+# Leave blank or remove to skip sharing (doc stays private to creator).
+# share_role: commenter | reader | writer
+share_domain: "ipinfo.io"
+share_role: "commenter"
